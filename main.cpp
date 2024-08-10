@@ -23,12 +23,55 @@ class Book
 		void testPrintInfo()
 		{
 			std::cout << title << ' ' << author << ' ' << isbn << '\n';
+			
+			if(available)
+			{
+				std::cout << "Available: True" << '\n';
+			}
 		}
 		
-	// idk why we need getters and setters, the Library class is gonna provide the new books anyway?
+		std::string getTitle()
+		{
+			return title;
+		}
+		
+		std::string getAuthor()
+		{
+			return author;
+		}
+		
+		std::string getIsbn()
+		{
+			return isbn;
+		}
+		
+		bool getAvailability()
+		{
+			return available;
+		}
+		
+		void setTitle(std::string newTitle)
+		{
+			title = newTitle;
+		}
+		
+		void setAuthor(std::string newAuthor)
+		{
+			author = newAuthor;
+		}
+
+		void setIsbn(std::string newIsbn)
+		{
+			isbn = newIsbn;
+		}
+
+		void setAvailability(std::string newAvailability)
+		{
+			// Lol idk
+		}		
 };
 
-class User
+class LibraryUser
 {
 	private:
 		std::string userId;
@@ -43,13 +86,24 @@ class User
 		}
 };
 
-int main()
+class Library
 {
-	std::cout << "yo" << '\n';
+	private:
+		// Arrays for books and userIDs
+		
+	public:
 	
+};
+
+int main()
+{	
 	// Test
 	Book testBook1("Bible", "Jesus", "3434");
-	testBook1.testPrintInfo();
+	std::cout << testBook1.getTitle() << testBook1.getAuthor() << testBook1.getIsbn() << '\n';
+	testBook1.setTitle("Bible 2");
+	testBook1.setAuthor("Jesus 2");
+	testBook1.setIsbn("99999");
+	std::cout << testBook1.getTitle() << testBook1.getAuthor() << testBook1.getIsbn() << '\n';
 	
 	return 0;
 }
