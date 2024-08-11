@@ -11,16 +11,14 @@ class Book
 		std::string title;
 		std::string author;
 		std::string isbn;
-		int stock;
 		bool available;
 		
 	public:
-		Book(std::string title, std::string author, std::string isbn, int stock)
+		Book(std::string title, std::string author, std::string isbn)
 		{
 			this -> title = title;
 			this -> author = author;
 			this -> isbn = isbn;
-			this -> stock = stock;
 			this -> available = true;
 		}
 		
@@ -59,9 +57,9 @@ class Book
 			isbn = newIsbn;
 		}
 
-		void setAvailability(std::string newAvailability)
+		void setAvailability(bool newAvailability)
 		{
-			// Lol idk
+			available = newAvailability;
 		}		
 };
 
@@ -105,7 +103,7 @@ class LibraryUser
 			name = newName;
 		}
 		
-		void borrowBook(const std::string &bookTitle) // the ampersand from ChatGPT was beside std::string
+		void borrowBook(const std::string &bookTitle)
 		{
 			borrowedBooks.push_back(bookTitle);
 		}
@@ -139,22 +137,50 @@ class Library
 	public:
 		void addBook(const std::string &title, const std::string &author, const std::string &isbn)
 		{
-			books.push_back(std::make_unique<Book>(title, author, isbn)); // Add availability
+			books.push_back(std::make_unique<Book>(title, author, isbn)); 
 		}
 		
-		void removeBook()
+		void removeBook(const std::string &isbn)
 		{
+			auto thisBook = std::remove_if(books.begin(), books.end(),
+			[&isbn](const std::unique_ptr<Book> &book)
+			{
+				return book -> getIsbn() == isbn;
+			});
 			
+			if(thisBook != books.end())
+			{
+				books.erase(thisBook, books.end());
+				std::cout << "Book removed" << '\n';
+			}
+			else
+			{
+				std::cout << "Book not found" << '\n';
+			}
 		}
 		
-		void addUser(const std::string &userId, const std::string &name) // Add list of borrowed books
+		void addUser(const std::string &userId, const std::string &name)
 		{
 			users.push_back(std::make_unique<LibraryUser>(userId, name));
 		}
 		
-		void removeUser()
+		void removeUser(const std::string &userId)
 		{
+			auto thisUser = std::remove_if(users.begin(), users.end(),
+			[&userId](const std::unique_ptr<LibraryUser> &user)
+			{
+				return user -> getUserId() == userId;
+			});
 			
+			if(thisUser != users.end())
+			{
+				users.erase(thisUser, users.end());
+				std::cout << "User removed" << '\n';
+			}
+			else
+			{
+				std::cout << "User not found" << '\n';
+			}
 		}
 		
 		void displayAllBooks()
@@ -164,7 +190,8 @@ class Library
 			{
 				std::cout << bookUniquePtr -> getTitle() << '\n'
 						  << bookUniquePtr -> getAuthor() << '\n'
-						  << bookUniquePtr -> getIsbn() << '\n';
+						  << bookUniquePtr -> getIsbn() << '\n'
+						  << (bookUniquePtr -> getAvailability() ? "Yes" : "No") << '\n';
 			}
 		}
 		
@@ -177,15 +204,119 @@ class Library
 						  << userUniquePtr -> getName() << '\n';
 			}
 		}
+		
+		void borrowBook(const std::string &userId, const std::string &isbn)
+		{
+			auto thisBook = std::find_if(books.begin(), books.end(),
+			[&isbn](const std::unique_ptr<Book> &book)
+			{
+				return book -> getIsbn() == isbn;
+			});
+			
+			if(thisBook != books.end())
+			{
+				if((*thisBook) -> getAvailability())
+				{
+					auto thisUser = std::find_if(users.begin(), users.end(),
+					[&userId](const std::unique_ptr<LibraryUser> &user)
+					{
+						return user -> getUserId() == userId;
+					});
+					
+					if(thisUser != users.end())
+					{
+						(*thisUser) -> borrowBook((*thisBook) -> getTitle());
+						(*thisBook) -> setAvailability(false);
+						std::cout << "The book is borrowed. Updated system." << '\n';
+					}
+					else
+					{
+						std::cout << "User does not exist" << '\n';
+					}
+				}
+				else
+				{
+					std::cout << "Book is currently borrowed" << '\n';
+				}
+			}
+			else
+			{
+				std::cout << "Book does not exist" << '\n';
+			}
+		}
+		
+		void returnBook(const std::string &userId, const std::string &isbn)
+		{
+			auto thisUser = std::find_if(users.begin(), users.end(),
+			[&userId](const std::unique_ptr<LibraryUser> &user)
+			{
+				return user -> getUserId() == userId;
+			});
+			
+			if(thisUser	!= users.end())
+			{
+				auto thisBook = std::find_if(books.begin(), books.end(),
+				[&isbn](const std::unique_ptr<Book> &book)
+				{
+					return book -> getIsbn() == isbn;
+				});
+				
+				if(thisBook != books.end())		
+				{
+					(*thisUser) -> returnBook((*thisBook) -> getTitle());
+					(*thisBook) -> setAvailability(true);
+					std::cout << "The book is return. Updated system." << '\n';
+				}
+				else
+				{
+					std::cout << "Book does not exist" << '\n';
+				}
+			}
+			else
+			{
+				std::cout << "User does not exist" << '\n';
+			}
+		}
+		
+		void displayBorrowedBooks(const std::string &userId) const
+		{
+			auto thisUser = std::find_if(users.begin(), users.end(),
+			[&userId](const std::unique_ptr<LibraryUser> &user)
+			{
+				return user -> getUserId() == userId;
+			});
+			
+			if(thisUser	!= users.end())
+			{
+				(*thisUser) -> displayBorrowedBooks();
+			}
+			else
+			{
+				std::cout << "User does not exist" << '\n';
+			}
+		}
+
 };
 
 int main()
-{		
+{	
 	Library lib;
 	lib.addBook("Yo", "Mama", "234");
+	lib.addBook("Spam", "Eggs", "123");
+	
 	lib.displayAllBooks();
 	
-	lib.addUser("234", "Wazaaa");
+	
+	lib.addUser("2399", "Wazaaa");
+	lib.displayAllUsers();
+	
+	lib.borrowBook("2399", "234");
+	lib.displayBorrowedBooks("2399");
+	
+    lib.returnBook("2399", "234");
+    lib.displayBorrowedBooks("2399");
+	
+	lib.removeUser("2399");
 	lib.displayAllUsers();
 
 	return 0;
