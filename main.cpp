@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <memory>
 
 class Book
 {
@@ -10,26 +11,17 @@ class Book
 		std::string title;
 		std::string author;
 		std::string isbn;
+		int stock;
 		bool available;
 		
 	public:
-		Book(std::string title, std::string author, std::string isbn)
+		Book(std::string title, std::string author, std::string isbn, int stock)
 		{
 			this -> title = title;
 			this -> author = author;
 			this -> isbn = isbn;
+			this -> stock = stock;
 			this -> available = true;
-		}
-		
-		// Test
-		void testPrintInfo()
-		{
-			std::cout << title << ' ' << author << ' ' << isbn << '\n';
-			
-			if(available)
-			{
-				std::cout << "Available: True" << '\n';
-			}
 		}
 		
 		std::string getTitle()
@@ -141,28 +133,60 @@ class LibraryUser
 class Library
 {
 	private:
-		// Arrays for books and userIDs
+		std::vector<std::unique_ptr<Book>> books;
+		std::vector<std::unique_ptr<LibraryUser>> users;
 		
 	public:
-	
+		void addBook(const std::string &title, const std::string &author, const std::string &isbn)
+		{
+			books.push_back(std::make_unique<Book>(title, author, isbn)); // Add availability
+		}
+		
+		void removeBook()
+		{
+			
+		}
+		
+		void addUser(const std::string &userId, const std::string &name) // Add list of borrowed books
+		{
+			users.push_back(std::make_unique<LibraryUser>(userId, name));
+		}
+		
+		void removeUser()
+		{
+			
+		}
+		
+		void displayAllBooks()
+		{
+			std::cout << "Library Manager - Books List:" << '\n';
+			for(const auto &bookUniquePtr : books)
+			{
+				std::cout << bookUniquePtr -> getTitle() << '\n'
+						  << bookUniquePtr -> getAuthor() << '\n'
+						  << bookUniquePtr -> getIsbn() << '\n';
+			}
+		}
+		
+		void displayAllUsers()
+		{
+			std::cout << "Library Manager - Users List:" << '\n';
+			for(const auto &userUniquePtr : users)
+			{
+				std::cout << userUniquePtr -> getUserId() << '\n'
+						  << userUniquePtr -> getName() << '\n';
+			}
+		}
 };
 
 int main()
-{	
-	// Test
-	Book testBook1("Bible", "Jesus", "3434");
-	std::cout << testBook1.getTitle() << testBook1.getAuthor() << testBook1.getIsbn() << '\n';
-	testBook1.setTitle("Bible 2");
-	testBook1.setAuthor("Jesus 2");
-	testBook1.setIsbn("99999");
-	std::cout << testBook1.getTitle() << testBook1.getAuthor() << testBook1.getIsbn() << '\n';
+{		
+	Library lib;
+	lib.addBook("Yo", "Mama", "234");
+	lib.displayAllBooks();
 	
-	LibraryUser user1("001", "John Library");
-	user1.borrowBook("Moldy Duck");
-	user1.displayBorrowedBooks();
-	user1.returnBook("Moldy Duck");
-	user1.displayBorrowedBooks();
+	lib.addUser("234", "Wazaaa");
+	lib.displayAllUsers();
 
-	
 	return 0;
 }
