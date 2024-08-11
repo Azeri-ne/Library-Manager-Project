@@ -289,10 +289,10 @@ class Library
 			std::cout << "Library Manager - Books List:" << '\n';
 			for(const auto &bookUniquePtr : books)
 			{
-				std::cout << bookUniquePtr -> getTitle() << '\n'
-						  << bookUniquePtr -> getAuthor() << '\n'
-						  << bookUniquePtr -> getIsbn() << '\n'
-						  << (bookUniquePtr -> getAvailability() ? "Yes" : "No") << '\n';
+				std::cout << "Title: " << bookUniquePtr -> getTitle() << '\n'
+						  << "Author: " << bookUniquePtr -> getAuthor() << '\n'
+						  << "ISBN: " << bookUniquePtr -> getIsbn() << '\n'
+						  << "Available: " << (bookUniquePtr -> getAvailability() ? "Yes" : "No") << '\n';
 			}
 		}
 		
@@ -301,8 +301,8 @@ class Library
 			std::cout << "Library Manager - Users List:" << '\n';
 			for(const auto &userUniquePtr : users)
 			{
-				std::cout << userUniquePtr -> getUserId() << '\n'
-						  << userUniquePtr -> getName() << '\n';
+				std::cout << "User ID: " << userUniquePtr -> getUserId() << '\n'
+						  << "Name: " << userUniquePtr -> getName() << '\n';
 			}
 		}
 		
@@ -402,7 +402,7 @@ class Library
 			char choice;
 			std::string input;
 			
-			// do
+			do
 			{
 				std::cout << "Library Manager v2.0" << '\n'
 						  << "[A]dd book" << '\n'
@@ -410,8 +410,159 @@ class Library
 						  << "A[D]d user" << '\n'
 						  << "Re[M]ove user" << '\n'
 						  << "[B]orrow book" << '\n'
-						  << "Retur[N] book" << '\n';
+						  << "Retur[N] book" << '\n'
+						  << "Display all bo[O]ks" << '\n'
+						  << "Display all us[E]rs" << '\n'
+						  << "Displa[Y] borrowed books" << '\n'
+						  << "[S]ave" << '\n'
+						  << "[L]oad" << '\n'
+						  << "E[X]it" << '\n'
+						  << "Enter command: ";
+				std::cin >> choice;
+				std::cin.ignore();
+				
+				switch(choice)
+				{
+					case 'A':
+					{
+						std::string title;
+						std::string author;
+						std::string isbn;
+						
+						std::cout << "Title: ";
+						std::getline(std::cin, title);
+						std::cout << "Author: ";
+						std::getline(std::cin, author);
+						std::cout << "ISBN: ";
+						std::getline(std::cin, isbn);		
+						
+						addBook(title, author, isbn);
+						
+						break;
+					}
+					
+					case 'R':
+					{
+						std::string isbn;
+						
+						std::cout << "ISBN to remove: ";
+						std::getline(std::cin, isbn);
+						
+						removeBook(isbn);
+						
+						break;
+					}
+					
+					case 'D':
+					{
+						std::string userId;
+						std::string name;
+						
+						std::cout << "User ID: ";
+						std::getline(std::cin, userId);
+						std::cout << "Name: ";
+						std::getline(std::cin, name);
+						
+						addUser(userId, name);
+						
+						break;
+					}
+					
+					case 'M':
+					{
+						std::string userId;
+						
+						std::cout << "User ID to remove: " << '\n';
+						std::getline(std::cin, userId);
+						
+						removeBook(userId);
+						
+						break;
+					}
+					
+					case 'B':
+					{
+						std::string userId;
+						std::string isbn;
+						
+						std::cout << "User ID: " << '\n';
+						std::getline(std::cin, userId);
+						std::cout << "ISBN to borrow: " << '\n';
+						std::getline(std::cin, isbn);
+						
+						borrowBook(userId, isbn);
+						
+						break;
+					}
+					
+					case 'N':
+					{
+						std::string userId;
+						std::string isbn;
+						
+						std::cout << "User ID: " << '\n';
+						std::getline(std::cin, userId);
+						std::cout << "ISBN to return: " << '\n';
+						std::getline(std::cin, isbn);
+						
+						returnBook(userId, isbn);
+						
+						break;
+					}
+					
+					case 'O':
+					{
+						displayAllBooks();
+						
+						break;
+					}
+					
+					case 'E':
+					{
+						displayAllUsers();
+						
+						break;
+					}
+					
+					case 'Y':
+					{
+						std::string userId;
+						
+						std::cout << "User ID: " << '\n';
+						std::getline(std::cin, userId);
+						
+						displayBorrowedBooks(userId);
+						
+						break;
+					}
+					
+					case 'S':
+					{
+						std::string filename = "data.txt";
+						save(filename);
+						
+						break;
+					}
+					
+					case 'L':
+					{
+						std::string filename = "data.txt";
+						
+						load(filename);
+						
+						break;
+					}
+					
+					case 'X':
+						std::cout << "Exiting, thanks for using the Library Manager" << '\n';
+						
+						break;
+						
+					default:
+						std::cout << "Command not recognized" << '\n';
+				}
 			}
+			while(choice != 'X');
 		}
 
 };
@@ -419,24 +570,6 @@ class Library
 int main()
 {	
 	Library lib;
-	lib.addBook("Yo", "Mama", "234");
-	lib.addBook("Spam", "Eggs", "123");
-	
-	lib.displayAllBooks();
-	
-	
-	lib.addUser("2399", "Wazaaa");
-	lib.displayAllUsers();
-	
-	lib.borrowBook("2399", "234");
-	lib.displayBorrowedBooks("2399");
-	
-    lib.returnBook("2399", "234");
-    lib.displayBorrowedBooks("2399");
-	
-	lib.removeUser("2399");
-	lib.displayAllUsers();
-	
 	lib.displayOptions();
 
 	return 0;
