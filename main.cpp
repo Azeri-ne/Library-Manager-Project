@@ -88,7 +88,7 @@ class LibraryUser
 			return name;
 		}
 		
-		const std::vector<std::string> getborrowedBooks() const
+		const std::vector<std::string> getBorrowedBooks() const
 		{
 			return borrowedBooks;
 		}
@@ -135,6 +135,107 @@ class Library
 		std::vector<std::unique_ptr<LibraryUser>> users;
 		
 	public:
+		void save(const std::string &filename) const
+		{
+			std::ofstream outFile(filename);
+			
+			if(outFile.is_open())
+			{
+				outFile << books.size() << '\n';
+				for(const auto &book : books)
+				{
+					outFile << book -> getTitle() << '\n'
+							<< book -> getAuthor() << '\n'
+							<< book -> getIsbn() << '\n'
+							<< book -> getAvailability() << '\n';
+				}
+				
+				outFile << users.size() << '\n';
+				for(const auto &user : users)
+				{
+					outFile << user -> getUserId() << '\n'
+							<< user -> getName() << '\n';
+							
+					const auto &borrowedBooks = user -> getBorrowedBooks();
+					outFile << borrowedBooks.size() << '\n';
+					for(const auto &bookTitle : borrowedBooks)
+					{
+						outFile << bookTitle << '\n';
+					}
+				}
+				outFile.close();
+				std::cout << "Saved successfully" << '\n';
+			}
+			else
+			{
+				std::cout << "Failed to save file. Check if directory exists" << '\n';
+			}
+		}
+		
+		void load(const std::string &filename)
+		{
+			std::ifstream inFile(filename);
+			
+			if(inFile.is_open())
+			{
+				books.clear();
+				users.clear();
+				
+				size_t bookAmount;
+				inFile  >> bookAmount;
+				inFile.ignore();
+				
+				for(size_t i = 0; i < bookAmount; i++)
+				{
+					std::string title;
+					std::string author;
+					std::string isbn;
+					bool available;
+					
+					std::getline(inFile, title);
+					std::getline(inFile, author);
+					std::getline(inFile, isbn);
+					inFile >> available;
+					inFile.ignore();
+					
+					books.push_back(std::make_unique<Book>(title, author, isbn));
+					books.back() -> setAvailability(available);
+				}
+				
+				size_t userAmount;
+				inFile >> userAmount;
+				inFile.ignore();
+				
+				for(size_t i = 0; i < userAmount; i++)
+				{
+					std::string userId;
+					std::string name;
+					std::getline(inFile, userId);
+					std::getline(inFile, name);
+					
+					users.push_back(std::make_unique<LibraryUser>(userId, name));
+					
+					size_t borrowedBookAmount;
+					inFile >> borrowedBookAmount;
+					inFile.ignore();
+					
+					for(size_t j = 0; j < borrowedBookAmount; j++)
+					{
+						std::string bookTitle;
+						std::getline(inFile, bookTitle);
+						users.back() -> borrowBook(bookTitle);
+					}
+				}
+				
+				inFile.close();
+				std::cout << "Loaded successfully" << '\n';
+			}
+			else
+			{
+				std::cout << "Failed to load file. Check if directory exists" << '\n';
+			}
+		}
+	
 		void addBook(const std::string &title, const std::string &author, const std::string &isbn)
 		{
 			books.push_back(std::make_unique<Book>(title, author, isbn)); 
@@ -295,6 +396,23 @@ class Library
 				std::cout << "User does not exist" << '\n';
 			}
 		}
+		
+		void displayOptions()
+		{
+			char choice;
+			std::string input;
+			
+			// do
+			{
+				std::cout << "Library Manager v2.0" << '\n'
+						  << "[A]dd book" << '\n'
+						  << "[R]emove book" << '\n'
+						  << "A[D]d user" << '\n'
+						  << "Re[M]ove user" << '\n'
+						  << "[B]orrow book" << '\n'
+						  << "Retur[N] book" << '\n';
+			}
+		}
 
 };
 
@@ -318,6 +436,8 @@ int main()
 	
 	lib.removeUser("2399");
 	lib.displayAllUsers();
+	
+	lib.displayOptions();
 
 	return 0;
 }
