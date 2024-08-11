@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
+#include <algorithm>
 
 class Book
 {
@@ -76,13 +78,63 @@ class LibraryUser
 	private:
 		std::string userId;
 		std::string name;
-		// std::string[] borrowedBooks; (I dunno how to make a list of strings)
+		std::vector<std::string> borrowedBooks;
 		
 	public:
-		User(std::string userId, std::string name)
+		LibraryUser(std::string userId, std::string name)
 		{
 			this -> userId = userId;
 			this -> name = name;
+			this -> borrowedBooks = {};
+		}
+		
+		std::string getUserId()
+		{
+			return userId;
+		}
+		
+		std::string getName()
+		{
+			return name;
+		}
+		
+		const std::vector<std::string> getborrowedBooks() const
+		{
+			return borrowedBooks;
+		}
+		
+		void setUserId(std::string newUserId)
+		{
+			userId = newUserId;
+		}
+		
+		void setName(std::string newName)
+		{
+			name = newName;
+		}
+		
+		void borrowBook(const std::string &bookTitle) // the ampersand from ChatGPT was beside std::string
+		{
+			borrowedBooks.push_back(bookTitle);
+		}
+		
+		void returnBook(const std::string &bookTitle)
+		{
+			std::vector<std::string>::iterator thisBook =
+			std::find(borrowedBooks.begin(), borrowedBooks.end(), bookTitle);
+			if(thisBook != borrowedBooks.end())
+			{
+				borrowedBooks.erase(thisBook);
+			}
+		}
+		
+		void displayBorrowedBooks() const
+		{
+			std::cout << "Borrowed Books | " << "User: " << name << '\n';
+			for(const std::string &book : borrowedBooks)
+			{
+				std::cout << book << '\n';
+			}
 		}
 };
 
@@ -104,6 +156,13 @@ int main()
 	testBook1.setAuthor("Jesus 2");
 	testBook1.setIsbn("99999");
 	std::cout << testBook1.getTitle() << testBook1.getAuthor() << testBook1.getIsbn() << '\n';
+	
+	LibraryUser user1("001", "John Library");
+	user1.borrowBook("Moldy Duck");
+	user1.displayBorrowedBooks();
+	user1.returnBook("Moldy Duck");
+	user1.displayBorrowedBooks();
+
 	
 	return 0;
 }
