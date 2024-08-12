@@ -403,7 +403,12 @@ class Library
 		void displayOptions()
 		{
 			char choice;
-			std::string input, title, author, isbn, userId, name;
+			std::string input;
+			std::string title;
+			std::string author;
+			std::string isbn;
+			std::string userId;
+			std::string name;
 
 			do
 			{
